@@ -1,0 +1,18 @@
+<div class="form-group">
+  <label for="subtitle">Image</label>
+  <div class="custom-file">
+    <input
+      type="file"
+      class="custom-file-input"
+      id="newsImage"
+      (change)="onFileChange($event)"
+    />
+    <label class="custom-file-label" for="newsImage">Choose Image</label>
+  </div>
+  <img
+    *ngIf="imageSource"
+    [src]="imageSource"
+    class="img-fluid news-image"
+    alt="Responsive image"
+  />
+</div>
