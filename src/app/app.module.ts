@@ -5,7 +5,6 @@ import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { CoreModule } from "./core/core.module";
 import { HttpClientModule, HTTP_INTERCEPTORS } from "@angular/common/http";
-import { ReactiveFormsModule, FormsModule } from "@angular/forms";
 import { CanDeactivateGuard } from "@core/Guards/can-deactivate.guard";
 import { HttpErrorInterceptor } from "@core/Interceptors/http-error.interceptor";
 import { SharedModule } from "@shared/shared.module";
@@ -18,9 +17,7 @@ import { NgxBootstrapModule } from "./ngx-bootstrap/ngx-bootstrap.module";
     AppRoutingModule,
     NgxBootstrapModule,
     CoreModule,
-    HttpClientModule,
-    FormsModule,
-    ReactiveFormsModule
+    HttpClientModule
   ],
   providers: [
     CanDeactivateGuard,

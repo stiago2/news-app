@@ -16,6 +16,6 @@ export class RadioButtonComponent implements OnInit {
   ngOnInit() {}
 
   select(value: string) {
-    console.log(value);
+    this.onOptionSelected.emit(value);
   }
 }

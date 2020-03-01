@@ -1,27 +1,54 @@
 <div class="add-news-form-container">
   <h1>Add News</h1>
-  <form>
+  <form [formGroup]="newsForm">
     <div class="form-group">
       <label for="title">Title</label>
-      <input type="text" class="form-control" id="title" />
-      <small id="emailHelp" class="form-text text-muted"
-        >We'll never share your email with anyone else.</small
+      <input
+        type="text"
+        class="form-control"
+        id="title"
+        formControlName="title"
+        required
+      />
+      <small
+        class="form-text text-danger"
+        *ngIf="newsForm.errors?.invalidLength"
+        >Title can not be longer than Subtitle</small
+      >
+      <small
+        class="form-text text-danger"
+        *ngIf="newsForm.get('title').errors?.pattern"
+        >Title can not contain special characters</small
       >
     </div>
     <div class="form-group">
       <label for="subtitle">Sub Title</label>
-      <input type="text" class="form-control" id="subtitle" />
+      <input
+        type="text"
+        class="form-control"
+        id="subtitle"
+        formControlName="subtitle"
+      />
     </div>
     <div class="form-group">
       <label for="subtitle">Description</label>
-      <textarea class="form-control" aria-label="With textarea"></textarea>
+      <textarea
+        class="form-control"
+        aria-label="With textarea"
+        formControlName="description"
+      ></textarea>
     </div>
 
-    <app-file-uploader></app-file-uploader>
+    <app-file-uploader (onLoad)="loadFile($event)"></app-file-uploader>
     <app-radio-button [categories]="categories"></app-radio-button>
 
     <div class="action-buttons">
-      <button type="button" class="btn btn-primary" (click)="onSave()">
+      <button
+        type="button"
+        class="btn btn-primary"
+        (click)="onSave()"
+        [disabled]="!newsForm.valid"
+      >
         Save
       </button>
       <button

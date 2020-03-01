@@ -6,6 +6,8 @@ import { INotificationSettings } from "@shared/Models/INotificationSettings.inte
 import { NotificationCenterService } from "@shared/Services/notification-center.service";
 import { Validators, FormBuilder, FormGroup } from "@angular/forms";
 import { NewsApiService } from "app/news/Services/news-api.service";
+import { ValidateTitleLength } from "app/news/Validators/title-length.validator";
+import { NewsCategories } from "app/news/Models/INews.interface";
 
 @Component({
   selector: "app-add-news",
@@ -40,18 +42,28 @@ export class AddNewsComponent implements OnInit, ICanDeactivate {
   }
 
   initForm() {
-    this.newsForm = this.formBuilder.group({
-      title: ["", Validators.compose([Validators.required])],
-      subtitle: ["", Validators.compose([Validators.required])],
-      image: ["", Validators.compose([Validators.required])],
-      description: ["", Validators.compose([Validators.required])],
-      category: ["", Validators.compose([Validators.required])]
-    });
+    this.newsForm = this.formBuilder.group(
+      {
+        title: [
+          "",
+          Validators.compose([
+            Validators.required,
+            Validators.pattern("^[A-Za-z0-9]+")
+          ])
+        ],
+        subtitle: ["", Validators.compose([Validators.required])],
+        image: [""],
+        description: [""],
+        category: [""]
+      },
+      { validators: ValidateTitleLength }
+    );
   }
 
   ngOnInit() {}
 
   onSave() {
+    console.log(this.newsForm.get("title").errors);
     const settings: INotificationSettings = {
       message: `Are you sure you want to create ${
         this.newsForm.get("title").value
@@ -75,5 +87,17 @@ export class AddNewsComponent implements OnInit, ICanDeactivate {
 
   delete() {
     console.log("DELETEEE");
+  }
+
+  loadFile(image: any) {
+    this.newsForm.patchValue({
+      image
+    });
+  }
+
+  selectCategory(category: NewsCategories) {
+    this.newsForm.patchValue({
+      category
+    });
   }
 }
