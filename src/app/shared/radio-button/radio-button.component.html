@@ -3,11 +3,14 @@
   <div class="btn-group" btnRadioGroup>
     <label
       *ngFor="let category of categories"
-      class="btn {{ category.colorClass }}"
+      class="btn"
       uncheckable
       tabindex="0"
       role="button"
-      (click)="select(category.value)"
+      (click)="writeValue(category.value)"
+      appSetClassColor
+      [category]="category.value"
+      [selectedCategory]="selectedCategory"
       >{{ category.name }}</label
     >
   </div>

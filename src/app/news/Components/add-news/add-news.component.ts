@@ -1,5 +1,5 @@
-import { Component, OnInit } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { Component, OnInit, OnDestroy } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
 import { ICanDeactivate } from "@core/Models/ICanDeactivate.interface";
 import { ICategory } from "@core/Models/ICategory.interface";
 import { INotificationSettings } from "@shared/Models/INotificationSettings.interface";
@@ -7,38 +7,40 @@ import { NotificationCenterService } from "@shared/Services/notification-center.
 import { Validators, FormBuilder, FormGroup } from "@angular/forms";
 import { NewsApiService } from "app/news/Services/news-api.service";
 import { ValidateTitleLength } from "app/news/Validators/title-length.validator";
-import { NewsCategories } from "app/news/Models/INews.interface";
+import { NewsCategories, INews } from "app/news/Models/INews.interface";
+import { SubSink } from "subsink";
 
 @Component({
   selector: "app-add-news",
   templateUrl: "./add-news.component.html",
   styleUrls: ["./add-news.component.less"]
 })
-export class AddNewsComponent implements OnInit, ICanDeactivate {
+export class AddNewsComponent implements OnInit, ICanDeactivate, OnDestroy {
+  private news: INews;
+  private subs = new SubSink();
   mode: "add" | "edit" = "add";
-  categories: ICategory[] = [
-    { name: "Sports", colorClass: "btn-success", value: "Sports" },
-    { name: "Politics", colorClass: "btn-danger", value: "Politics" },
-    { name: "Human Rights", colorClass: "btn-info", value: "HumanRights" },
-    { name: "International", colorClass: "btn-warning", value: "International" }
-  ];
+  pageTitle: string;
+  categories: ICategory[] = [];
   newsForm: FormGroup;
+
   constructor(
     private newsApiService: NewsApiService,
     private route: ActivatedRoute,
     private notificationCenterService: NotificationCenterService,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private router: Router
   ) {
-    this.initForm();
-    this.route.params.subscribe(params => {
-      +params.id === 0 ? (this.mode = "add") : (this.mode = "edit");
-    });
+    this.newsApiService
+      .getNewsCategories()
+      .subscribe(categories => (this.categories = categories));
   }
 
-  canDeactivate() {
-    return this.newsForm.dirty && this.newsForm.touched
-      ? confirm("Discard changes for movie?")
-      : true;
+  ngOnInit() {
+    this.initForm();
+    this.subs.sink = this.route.params.subscribe(params => {
+      const id = +params.id;
+      this.getNewsById(id);
+    });
   }
 
   initForm() {
@@ -48,7 +50,7 @@ export class AddNewsComponent implements OnInit, ICanDeactivate {
           "",
           Validators.compose([
             Validators.required,
-            Validators.pattern("^[A-Za-z0-9]+")
+            Validators.pattern("^[A-Za-z0-9 _]*[A-Za-z0-9][A-Za-z0-9 _]*$")
           ])
         ],
         subtitle: ["", Validators.compose([Validators.required])],
@@ -60,19 +62,77 @@ export class AddNewsComponent implements OnInit, ICanDeactivate {
     );
   }
 
-  ngOnInit() {}
+  getNewsById(id: number) {
+    this.newsApiService.getNewsById(id).subscribe({
+      next: (news: INews) => this.setFormValues(news).setPageMode(),
+      error: err =>
+        this.setFormValues(this.newsApiService.initNews()).setPageMode()
+    });
+  }
+
+  canDeactivate() {
+    return this.newsForm.touched && this.newsForm.dirty && this.newsForm.touched
+      ? confirm("Discard changes for movie?")
+      : true;
+  }
+
+  setPageMode() {
+    if (this.news.id === 0) {
+      this.mode = "add";
+      this.pageTitle = "Add News";
+    } else {
+      this.mode = "edit";
+      this.pageTitle = `Edit ${this.news.title}`;
+    }
+  }
+
+  setFormValues(news: INews): this {
+    if (this.newsForm) {
+      this.newsForm.reset();
+    }
+    this.news = news;
+    this.newsForm.patchValue({
+      title: news.title,
+      subtitle: news.subtitle,
+      image: news.image,
+      description: news.description,
+      category: news.category
+    });
+    return this;
+  }
 
   onSave() {
-    console.log(this.newsForm.get("title").errors);
-    const settings: INotificationSettings = {
-      message: `Are you sure you want to create ${
-        this.newsForm.get("title").value
-      }?`,
-      title: "News"
-    };
-    this.notificationCenterService.showNotification(settings, () =>
-      this.newsApiService.saveNews(this.newsForm.value)
-    );
+    if (this.newsForm.valid) {
+      const news = { ...this.news, ...this.newsForm.value };
+      const settings: INotificationSettings = {
+        message: "",
+        title: ""
+      };
+      if (news.id === 0) {
+        settings.message = `Are you sure you want to save this news?`;
+        settings.title = "+ Add News";
+        this.notificationCenterService.showNotification(settings, () =>
+          this.newsApiService.createNews(news).subscribe({
+            next: () => this.onSaveComplete(),
+            error: err => console.log(err)
+          })
+        );
+      } else {
+        settings.title = "Edit News";
+        settings.message = `Are you sure you want to modify ${news.title}?`;
+        this.notificationCenterService.showNotification(settings, () =>
+          this.newsApiService.updateNews(news).subscribe({
+            next: () => this.onSaveComplete(),
+            error: err => console.log(err)
+          })
+        );
+      }
+    }
+  }
+
+  onSaveComplete() {
+    this.newsForm.markAsUntouched();
+    this.router.navigate(["news"]);
   }
 
   onDelete() {
@@ -80,13 +140,14 @@ export class AddNewsComponent implements OnInit, ICanDeactivate {
       message: `You are about to delete ${
         this.newsForm.get("title").value
       }, do you want to continue?`,
-      title: "News"
+      title: "Delete News"
     };
-    this.notificationCenterService.showNotification(settings, this.delete);
-  }
-
-  delete() {
-    console.log("DELETEEE");
+    this.notificationCenterService.showNotification(settings, () =>
+      this.newsApiService.deleteNews(this.news.id).subscribe({
+        next: () => this.onSaveComplete(),
+        error: err => console.log(err)
+      })
+    );
   }
 
   loadFile(image: any) {
@@ -99,5 +160,9 @@ export class AddNewsComponent implements OnInit, ICanDeactivate {
     this.newsForm.patchValue({
       category
     });
+  }
+
+  ngOnDestroy() {
+    this.subs.unsubscribe();
   }
 }

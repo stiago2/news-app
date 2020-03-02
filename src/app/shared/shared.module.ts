@@ -4,16 +4,24 @@ import { NotificationModalComponent } from "./notification-modal/notification-mo
 import { FileUploaderComponent } from "./file-uploader/file-uploader.component";
 import { RadioButtonComponent } from "./radio-button/radio-button.component";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { OnErrorDirective } from "./Directives/on-error.directive";
+import { SetClassColorDirective } from "./Directives/set-class-color.directive";
 
 @NgModule({
-  declarations: [FileUploaderComponent, RadioButtonComponent],
+  declarations: [
+    FileUploaderComponent,
+    RadioButtonComponent,
+    OnErrorDirective,
+    SetClassColorDirective
+  ],
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
   exports: [
-    CommonModule,
     FileUploaderComponent,
     RadioButtonComponent,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    OnErrorDirective,
+    SetClassColorDirective
   ]
 })
 export class SharedModule {

@@ -5,7 +5,12 @@ export function ValidateTitleLength(
 ): { [key: string]: boolean } | null {
   const title = control.get("title");
   const subtitle = control.get("subtitle");
-  if (title.value.length >= subtitle.value.length && title.value !== "") {
+  if (
+    title.value &&
+    subtitle.value &&
+    title.value.length >= subtitle.value.length &&
+    title.value !== ""
+  ) {
     return { invalidLength: true };
   }
   return null;

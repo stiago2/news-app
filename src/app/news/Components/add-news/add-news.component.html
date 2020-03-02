@@ -1,5 +1,5 @@
 <div class="add-news-form-container">
-  <h1>Add News</h1>
+  <h1>{{ pageTitle }}</h1>
   <form [formGroup]="newsForm">
     <div class="form-group">
       <label for="title">Title</label>
@@ -39,21 +39,27 @@
       ></textarea>
     </div>
 
-    <app-file-uploader (onLoad)="loadFile($event)"></app-file-uploader>
-    <app-radio-button [categories]="categories"></app-radio-button>
+    <app-file-uploader
+      (onLoad)="loadFile($event)"
+      [imageSource]="newsForm.get('image').value"
+    ></app-file-uploader>
+    <app-radio-button
+      [categories]="categories"
+      formControlName="category"
+    ></app-radio-button>
 
     <div class="action-buttons">
       <button
         type="button"
-        class="btn btn-primary"
+        class="btn btn-outline-primary"
         (click)="onSave()"
-        [disabled]="!newsForm.valid"
+        [disabled]="!newsForm.touched || !newsForm.valid"
       >
         Save
       </button>
       <button
         type="button"
-        class="btn btn-primary"
+        class="btn btn-outline-secondary"
         *ngIf="mode === 'edit'"
         (click)="onDelete()"
       >
