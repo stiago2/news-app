@@ -53,7 +53,7 @@ export class AddNewsComponent implements OnInit, ICanDeactivate, OnDestroy {
             Validators.pattern("^[A-Za-z0-9 _]*[A-Za-z0-9][A-Za-z0-9 _]*$")
           ])
         ],
-        subtitle: ["", Validators.compose([Validators.required])],
+        subtitle: [""],
         image: [""],
         description: [""],
         category: [""]
@@ -71,7 +71,7 @@ export class AddNewsComponent implements OnInit, ICanDeactivate, OnDestroy {
   }
 
   canDeactivate() {
-    return this.newsForm.touched && this.newsForm.dirty && this.newsForm.touched
+    return this.newsForm.dirty && this.newsForm.touched
       ? confirm("Discard changes for movie?")
       : true;
   }
@@ -98,40 +98,49 @@ export class AddNewsComponent implements OnInit, ICanDeactivate, OnDestroy {
       description: news.description,
       category: news.category
     });
+    this.newsForm.markAsUntouched();
     return this;
   }
 
   onSave() {
     if (this.newsForm.valid) {
       const news = { ...this.news, ...this.newsForm.value };
-      const settings: INotificationSettings = {
-        message: "",
-        title: ""
-      };
       if (news.id === 0) {
-        settings.message = `Are you sure you want to save this news?`;
-        settings.title = "+ Add News";
-        this.notificationCenterService.showNotification(settings, () =>
-          this.newsApiService.createNews(news).subscribe({
-            next: () => this.onSaveComplete(),
-            error: err => console.log(err)
-          })
-        );
+        this.save(news);
       } else {
-        settings.title = "Edit News";
-        settings.message = `Are you sure you want to modify ${news.title}?`;
-        this.notificationCenterService.showNotification(settings, () =>
-          this.newsApiService.updateNews(news).subscribe({
-            next: () => this.onSaveComplete(),
-            error: err => console.log(err)
-          })
-        );
+        this.update(news);
       }
     }
   }
 
+  save(news: INews) {
+    const settings: INotificationSettings = {
+      message: `Are you sure you want to save this news?`,
+      title: "+ Add News"
+    };
+    this.notificationCenterService.showNotification(settings, () =>
+      this.newsApiService.createNews(news).subscribe({
+        next: () => this.onSaveComplete(),
+        error: err => console.log(err)
+      })
+    );
+  }
+
+  update(news: INews) {
+    const settings: INotificationSettings = {
+      message: `Are you sure you want to modify ${news.title}?`,
+      title: "Edit News"
+    };
+    this.notificationCenterService.showNotification(settings, () =>
+      this.newsApiService.updateNews(news).subscribe({
+        next: () => this.onSaveComplete(),
+        error: err => console.log(err)
+      })
+    );
+  }
+
   onSaveComplete() {
-    this.newsForm.markAsUntouched();
+    this.newsForm.markAsPristine();
     this.router.navigate(["news"]);
   }
 
@@ -153,12 +162,6 @@ export class AddNewsComponent implements OnInit, ICanDeactivate, OnDestroy {
   loadFile(image: any) {
     this.newsForm.patchValue({
       image
-    });
-  }
-
-  selectCategory(category: NewsCategories) {
-    this.newsForm.patchValue({
-      category
     });
   }
 
