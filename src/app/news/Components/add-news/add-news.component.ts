@@ -2,12 +2,12 @@ import { Component, OnInit, OnDestroy } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ICanDeactivate } from "@core/Models/ICanDeactivate.interface";
 import { ICategory } from "@core/Models/ICategory.interface";
-import { INotificationSettings } from "@shared/Models/INotificationSettings.interface";
-import { NotificationCenterService } from "@shared/Services/notification-center.service";
+import { INotificationSettings } from "@core/Models/INotificationSettings.interface";
+import { ModalService } from "@shared/Services/notification-center.service";
 import { Validators, FormBuilder, FormGroup } from "@angular/forms";
 import { NewsApiService } from "app/news/Services/news-api.service";
 import { ValidateTitleLength } from "app/news/Validators/title-length.validator";
-import { NewsCategories, INews } from "app/news/Models/INews.interface";
+import { INews } from "app/news/Models/INews.interface";
 import { SubSink } from "subsink";
 
 @Component({
@@ -26,7 +26,7 @@ export class AddNewsComponent implements OnInit, ICanDeactivate, OnDestroy {
   constructor(
     private newsApiService: NewsApiService,
     private route: ActivatedRoute,
-    private notificationCenterService: NotificationCenterService,
+    private modalService: ModalService,
     private formBuilder: FormBuilder,
     private router: Router
   ) {
@@ -71,9 +71,7 @@ export class AddNewsComponent implements OnInit, ICanDeactivate, OnDestroy {
   }
 
   canDeactivate() {
-    return this.newsForm.dirty && this.newsForm.touched
-      ? confirm("Discard changes for movie?")
-      : true;
+    return this.newsForm.dirty && this.newsForm.touched;
   }
 
   setPageMode() {
@@ -118,12 +116,14 @@ export class AddNewsComponent implements OnInit, ICanDeactivate, OnDestroy {
       message: `Are you sure you want to save this news?`,
       title: "+ Add News"
     };
-    this.notificationCenterService.showNotification(settings, () =>
-      this.newsApiService.createNews(news).subscribe({
-        next: () => this.onSaveComplete(),
-        error: err => console.log(err)
-      })
-    );
+    this.modalService.showModal(settings, (confirm: boolean) => {
+      if (confirm) {
+        this.newsApiService.createNews(news).subscribe({
+          next: () => this.onSaveComplete(),
+          error: err => console.log(err)
+        });
+      }
+    });
   }
 
   update(news: INews) {
@@ -131,12 +131,14 @@ export class AddNewsComponent implements OnInit, ICanDeactivate, OnDestroy {
       message: `Are you sure you want to modify ${news.title}?`,
       title: "Edit News"
     };
-    this.notificationCenterService.showNotification(settings, () =>
-      this.newsApiService.updateNews(news).subscribe({
-        next: () => this.onSaveComplete(),
-        error: err => console.log(err)
-      })
-    );
+    this.modalService.showModal(settings, (confirm: boolean) => {
+      if (confirm) {
+        this.newsApiService.updateNews(news).subscribe({
+          next: () => this.onSaveComplete(),
+          error: err => console.log(err)
+        });
+      }
+    });
   }
 
   onSaveComplete() {
@@ -151,12 +153,14 @@ export class AddNewsComponent implements OnInit, ICanDeactivate, OnDestroy {
       }, do you want to continue?`,
       title: "Delete News"
     };
-    this.notificationCenterService.showNotification(settings, () =>
-      this.newsApiService.deleteNews(this.news.id).subscribe({
-        next: () => this.onSaveComplete(),
-        error: err => console.log(err)
-      })
-    );
+    this.modalService.showModal(settings, (confirm: boolean) => {
+      if (confirm) {
+        this.newsApiService.deleteNews(this.news.id).subscribe({
+          next: () => this.onSaveComplete(),
+          error: err => console.log(err)
+        });
+      }
+    });
   }
 
   loadFile(image: any) {

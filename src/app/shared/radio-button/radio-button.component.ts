@@ -1,5 +1,4 @@
 import { Component, OnInit, Input, forwardRef } from "@angular/core";
-import { ICategory } from "@core/Models/ICategory.interface";
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from "@angular/forms";
 
 @Component({
@@ -15,7 +14,7 @@ import { NG_VALUE_ACCESSOR, ControlValueAccessor } from "@angular/forms";
   ]
 })
 export class RadioButtonComponent implements ControlValueAccessor {
-  @Input() categories: ICategory[];
+  @Input() categories: any[];
   private _value = "";
   selectedCategory = "";
   constructor() {}

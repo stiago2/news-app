@@ -2,8 +2,8 @@ import { Component, OnInit } from "@angular/core";
 import { INews } from "app/news/Models/INews.interface";
 import { NewsApiService } from "app/news/Services/news-api.service";
 import { Router } from "@angular/router";
-import { INotificationSettings } from "@shared/Models/INotificationSettings.interface";
-import { NotificationCenterService } from "@shared/Services/notification-center.service";
+import { INotificationSettings } from "@core/Models/INotificationSettings.interface";
+import { ModalService } from "@shared/Services/notification-center.service";
 import { Observable } from "rxjs";
 
 @Component({
@@ -16,7 +16,7 @@ export class DashboardComponent implements OnInit {
   constructor(
     private newsApiService: NewsApiService,
     private router: Router,
-    private notificationCenterService: NotificationCenterService
+    private modalService: ModalService
   ) {}
 
   ngOnInit() {
@@ -36,11 +36,13 @@ export class DashboardComponent implements OnInit {
       message: `You are about to delete ${newsData.title}, do you want to continue?`,
       title: "Delete News"
     };
-    this.notificationCenterService.showNotification(settings, () =>
-      this.newsApiService.deleteNews(newsData.id).subscribe({
-        next: () => this.getNews(),
-        error: err => console.log(err)
-      })
-    );
+    this.modalService.showModal(settings, (confirm: boolean) => {
+      if (confirm) {
+        this.newsApiService.deleteNews(newsData.id).subscribe({
+          next: () => this.getNews(),
+          error: err => console.log(err)
+        });
+      }
+    });
   }
 }

@@ -1,6 +1,6 @@
 import { Component, Output, EventEmitter } from "@angular/core";
 import { BsModalRef } from "ngx-bootstrap/modal";
-import { INotificationSettings } from "@shared/Models/INotificationSettings.interface";
+import { INotificationSettings } from "@core/Models/INotificationSettings.interface";
 
 @Component({
   selector: "app-notification-modal",
@@ -13,11 +13,12 @@ export class NotificationModalComponent {
   constructor(private bsModalRef: BsModalRef) {}
 
   confirm() {
-    this.onConfirm.emit();
+    this.onConfirm.emit(true);
     this.close();
   }
 
   close() {
+    this.onConfirm.emit(false);
     this.bsModalRef.hide();
   }
 }
