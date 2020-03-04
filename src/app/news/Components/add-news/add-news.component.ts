@@ -9,6 +9,7 @@ import { NewsApiService } from "app/news/Services/news-api.service";
 import { ValidateTitleLength } from "app/news/Validators/title-length.validator";
 import { INews } from "app/news/Models/INews.interface";
 import { SubSink } from "subsink";
+import { NotificationCenterService } from "@core/Services/notification-center.service";
 
 @Component({
   selector: "app-add-news",
@@ -28,7 +29,8 @@ export class AddNewsComponent implements OnInit, ICanDeactivate, OnDestroy {
     private route: ActivatedRoute,
     private modalService: ModalService,
     private formBuilder: FormBuilder,
-    private router: Router
+    private router: Router,
+    private notificationCenter: NotificationCenterService
   ) {
     this.newsApiService
       .getNewsCategories()
@@ -119,8 +121,8 @@ export class AddNewsComponent implements OnInit, ICanDeactivate, OnDestroy {
     this.modalService.showModal(settings, (confirm: boolean) => {
       if (confirm) {
         this.newsApiService.createNews(news).subscribe({
-          next: () => this.onSaveComplete(),
-          error: err => console.log(err)
+          next: () => this.onSaveComplete("created"),
+          error: err => this.notificationCenter.showError(err)
         });
       }
     });
@@ -134,14 +136,17 @@ export class AddNewsComponent implements OnInit, ICanDeactivate, OnDestroy {
     this.modalService.showModal(settings, (confirm: boolean) => {
       if (confirm) {
         this.newsApiService.updateNews(news).subscribe({
-          next: () => this.onSaveComplete(),
-          error: err => console.log(err)
+          next: () => this.onSaveComplete("updated"),
+          error: err => this.notificationCenter.showError(err)
         });
       }
     });
   }
 
-  onSaveComplete() {
+  onSaveComplete(action: string) {
+    this.notificationCenter.showSuccess(
+      `${this.news.title} has been successfuly ${action}!`
+    );
     this.newsForm.markAsPristine();
     this.router.navigate(["news"]);
   }
@@ -156,8 +161,8 @@ export class AddNewsComponent implements OnInit, ICanDeactivate, OnDestroy {
     this.modalService.showModal(settings, (confirm: boolean) => {
       if (confirm) {
         this.newsApiService.deleteNews(this.news.id).subscribe({
-          next: () => this.onSaveComplete(),
-          error: err => console.log(err)
+          next: () => this.onSaveComplete("deleted"),
+          error: err => this.notificationCenter.showError(err)
         });
       }
     });

@@ -1,7 +1,6 @@
-<div class="news-dashboard-container">
-  <div class="card-deck">
+<div class="row row-cols-1 row-cols-md-2">
+  <div class="col mb-4" *ngFor="let n of news$ | async">
     <app-news-card
-      *ngFor="let n of news$ | async"
       [news]="n"
       (onEdit)="edit($event)"
       (onDelete)="delete($event)"

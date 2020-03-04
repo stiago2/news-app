@@ -1,5 +1,7 @@
 import { Component, OnInit } from "@angular/core";
-import { Router } from "@angular/router";
+import { BreakpointObserver, Breakpoints } from "@angular/cdk/layout";
+import { map, shareReplay } from "rxjs/operators";
+import { Observable } from "rxjs";
 
 @Component({
   selector: "app-nav-bar",
@@ -7,5 +9,12 @@ import { Router } from "@angular/router";
   styleUrls: ["./nav-bar.component.less"]
 })
 export class NavBarComponent {
-  constructor() {}
+  isHandset$: Observable<boolean> = this.breakpointObserver
+    .observe([Breakpoints.XSmall])
+    .pipe(
+      map(result => result.matches),
+      shareReplay()
+    );
+
+  constructor(private breakpointObserver: BreakpointObserver) {}
 }

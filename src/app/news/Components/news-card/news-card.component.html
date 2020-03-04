@@ -1,33 +1,23 @@
-<div
-  class="card bg-{{ colorClass }}  mb-3"
-  [ngClass]="{ 'text-white': news.category }"
->
+<div class="card bg-{{ colorClass }} mb-3">
   <img
-    class="img-thumbnail"
+    class="img-fluid"
     [src]="news?.image"
     alt="{{ news?.description }}"
     appOnError
   />
   <div class="card-body">
     <h5 class="card-title">{{ news?.title | titlecase }}</h5>
-    <h6 class="card-subtitle mb-2">
+    <h6 class="card-subtitle  mb-2">
       {{ news?.subtitle | titlecase }}
     </h6>
     <p class="card-text">{{ news?.description | titlecase }}</p>
-
+  </div>
+  <div class="card-footer">
     <div class="card-text action-buttons">
-      <button
-        type="button"
-        class="btn btn{{ news.category ? '' : '-outline' }}-primary"
-        (click)="edit()"
-      >
+      <button type="button" class="btn btn-light" (click)="edit()">
         Edit
       </button>
-      <button
-        type="button"
-        class="btn btn{{ news.category ? '' : '-outline' }}-secondary"
-        (click)="delete()"
-      >
+      <button type="button" class="btn btn-dark" (click)="delete()">
         Delete
       </button>
     </div>

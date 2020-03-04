@@ -5,6 +5,7 @@ import { Router } from "@angular/router";
 import { INotificationSettings } from "@core/Models/INotificationSettings.interface";
 import { ModalService } from "@shared/Services/notification-center.service";
 import { Observable } from "rxjs";
+import { NotificationCenterService } from "@core/Services/notification-center.service";
 
 @Component({
   selector: "app-dashboard",
@@ -16,7 +17,8 @@ export class DashboardComponent implements OnInit {
   constructor(
     private newsApiService: NewsApiService,
     private router: Router,
-    private modalService: ModalService
+    private modalService: ModalService,
+    private notificationCenter: NotificationCenterService
   ) {}
 
   ngOnInit() {
@@ -39,10 +41,17 @@ export class DashboardComponent implements OnInit {
     this.modalService.showModal(settings, (confirm: boolean) => {
       if (confirm) {
         this.newsApiService.deleteNews(newsData.id).subscribe({
-          next: () => this.getNews(),
+          next: () => this.onDeleteCompleted(newsData),
           error: err => console.log(err)
         });
       }
     });
+  }
+
+  onDeleteCompleted(news: INews) {
+    this.notificationCenter.showSuccess(
+      `${news.title} has been successfuly deleted!`
+    );
+    this.getNews();
   }
 }

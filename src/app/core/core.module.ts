@@ -4,10 +4,11 @@ import { EnsureModuleLoadedOnceGuard } from "./Guards/ensure-module-loaded-once.
 import { NavBarComponent } from "./Components/nav-bar/nav-bar.component";
 import { LoadingComponent } from "./Components/loading/loading.component";
 import { RouterModule } from "@angular/router";
+import { MaterialModule } from "app/material/material.module";
 
 @NgModule({
   declarations: [NavBarComponent, LoadingComponent],
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, MaterialModule],
   exports: [NavBarComponent, LoadingComponent]
 })
 export class CoreModule extends EnsureModuleLoadedOnceGuard {

@@ -12,17 +12,26 @@ import { NgxBootstrapModule } from "./ngx-bootstrap/ngx-bootstrap.module";
 import { HttpClientInMemoryWebApiModule } from "angular-in-memory-web-api";
 import { ApiData } from "@core/Api/api-data";
 import { HttpHeadersInterceptor } from "@core/Interceptors/http-headers.interceptor";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+import { ToastrModule } from "ngx-toastr";
 
 @NgModule({
   declarations: [AppComponent, SharedModule.entryComponents],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     HttpClientModule,
     AppRoutingModule,
     NgxBootstrapModule,
     CoreModule,
     HttpClientModule,
-    HttpClientInMemoryWebApiModule.forRoot(ApiData)
+    HttpClientInMemoryWebApiModule.forRoot(ApiData),
+
+    ToastrModule.forRoot({
+      timeOut: 4000,
+      positionClass: "toast-bottom-right",
+      preventDuplicates: true
+    })
   ],
   providers: [
     CanDeactivateGuard,
