@@ -39,10 +39,7 @@
       ></textarea>
     </div>
 
-    <app-file-uploader
-      (onLoad)="loadFile($event)"
-      [imageSource]="newsForm.get('image').value"
-    ></app-file-uploader>
+    <app-file-uploader formControlName="image"></app-file-uploader>
     <app-radio-button
       [categories]="categories"
       formControlName="category"
@@ -51,7 +48,7 @@
     <div class="action-buttons">
       <button
         type="button"
-        class="btn btn-outline-primary"
+        class="btn btn-primary"
         (click)="onSave()"
         [disabled]="!newsForm.touched || !newsForm.valid"
       >
@@ -59,7 +56,7 @@
       </button>
       <button
         type="button"
-        class="btn btn-outline-dark"
+        class="btn btn-dark"
         *ngIf="mode === 'edit'"
         (click)="onDelete()"
       >
