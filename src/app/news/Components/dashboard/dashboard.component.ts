@@ -42,7 +42,7 @@ export class DashboardComponent implements OnInit {
       if (confirm) {
         this.newsApiService.deleteNews(newsData.id).subscribe({
           next: () => this.onDeleteCompleted(newsData),
-          error: err => console.log(err)
+          error: err => this.notificationCenter.showError(err)
         });
       }
     });

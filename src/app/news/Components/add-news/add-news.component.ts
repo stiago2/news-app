@@ -10,6 +10,7 @@ import { ValidateTitleLength } from "app/news/Validators/title-length.validator"
 import { INews } from "app/news/Models/INews.interface";
 import { SubSink } from "subsink";
 import { NotificationCenterService } from "@core/Services/notification-center.service";
+import { Observable } from "rxjs";
 
 @Component({
   selector: "app-add-news",
@@ -21,7 +22,7 @@ export class AddNewsComponent implements OnInit, ICanDeactivate, OnDestroy {
   private subs = new SubSink();
   mode: "add" | "edit" = "add";
   pageTitle: string;
-  categories: ICategory[] = [];
+  categories$: Observable<ICategory[]>;
   newsForm: FormGroup;
 
   constructor(
@@ -32,9 +33,7 @@ export class AddNewsComponent implements OnInit, ICanDeactivate, OnDestroy {
     private router: Router,
     private notificationCenter: NotificationCenterService
   ) {
-    this.newsApiService
-      .getNewsCategories()
-      .subscribe(categories => (this.categories = categories));
+    this.categories$ = this.newsApiService.getNewsCategories();
   }
 
   ngOnInit() {

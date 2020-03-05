@@ -41,7 +41,7 @@
 
     <app-file-uploader formControlName="image"></app-file-uploader>
     <app-radio-button
-      [categories]="categories"
+      [categories]="categories$ | async"
       formControlName="category"
     ></app-radio-button>
 

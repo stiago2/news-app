@@ -7,3 +7,6 @@
     ></app-news-card>
   </div>
 </div>
+<div class="no-news-message" *ngIf="(news$ | async)?.length === 0">
+  <p>No news were found!</p>
+</div>
